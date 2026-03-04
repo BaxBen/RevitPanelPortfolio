@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+	<AddIn Type="Application">
+		<Name>Portfolio</Name>
+		<Assembly>C:\Program Files\RevitAPITraining\MainRevitPanel.dll</Assembly>
+		<AddInId>720E7C9F-6026-491C-8431-33EDF52BD44A</AddInId>
+		<FullClassName>MainRevitPanel.Main</FullClassName>
+		<VendorId>ADSK</VendorId>
+	</AddIn>
+</RevitAddIns>
