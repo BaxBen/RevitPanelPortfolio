@@ -90,6 +90,14 @@ namespace MainRevitPanel
                 typeof(ExportToDWGCommand),
                 "Пользователь выбирает листы для экспорта"
                 );
+
+            PushButton button2 = CreateButton(
+                panel,
+                "Экспорт спецификаций в Excel",
+                "Экспорт спецификаций в Excel",
+                typeof(ExportSchedulesToExcelCommand),
+                "Пользователь выбирает спецификаций для экспорта"
+                );
         }
 
         private void SetupPanel(UIControlledApplication application)

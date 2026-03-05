@@ -17,31 +17,33 @@ using System.Windows.Shapes;
 namespace MainRevitPanel.UI.Windows
 {
     /// <summary>
-    /// Логика взаимодействия для ExportToDWGWindow.xaml
+    /// Логика взаимодействия для ExportSchedulesToExcelWindow.xaml
     /// </summary>
-    public partial class ExportToDWGWindow : Window
+    public partial class ExportSchedulesToExcelWindow : Window
     {
-        private List<ViewSheet> _allViewSheet;
+        private List<ViewSchedule> _allSchedules;
 
-        public List<ViewSheet> SelectedViewSheet { get; private set; }
-        public ExportToDWGWindow(List<ViewSheet> viewSheet)
+        public List<ViewSchedule> SelectedSchedules { get; private set; }
+
+        public ExportSchedulesToExcelWindow(List<ViewSchedule> schedules)
         {
             InitializeComponent();
-            _allViewSheet = viewSheet;
-            ViewSheetListBox.ItemsSource = viewSheet;
+            _allSchedules = schedules;
+            SchedulesListBox.ItemsSource = schedules;
         }
+
         private void SelectAll_Click(object sender, RoutedEventArgs e)
         {
-            ViewSheetListBox.SelectAll();
+            SchedulesListBox.SelectAll();
         }
 
         private void Export_Click(object sender, RoutedEventArgs e)
         {
-            SelectedViewSheet = ViewSheetListBox.SelectedItems.Cast<ViewSheet>().ToList();
+            SelectedSchedules = SchedulesListBox.SelectedItems.Cast<ViewSchedule>().ToList();
 
-            if (SelectedViewSheet.Count == 0)
+            if (SelectedSchedules.Count == 0)
             {
-                MessageBox.Show("Выберите хотя бы однин лист!",
+                MessageBox.Show("Выберите хотя бы одну спецификацию!",
                     "Предупреждение",
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
