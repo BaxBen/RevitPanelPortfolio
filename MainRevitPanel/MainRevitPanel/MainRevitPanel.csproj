@@ -57,13 +57,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base\CommandBase.cs" />
+    <Compile Include="Base\ViewModelBase.cs" />
+    <Compile Include="Commands\Export\ExportToDWGCommand.cs" />
     <Compile Include="Commands\VK\NearFarCraneCommand.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\FilterPipeAccessory.cs" />
     <Compile Include="Services\GraphPathFinder.cs" />
     <Compile Include="Services\VK\PathFinder.cs" />
+    <Compile Include="UI\Models\SheetData.cs" />
+    <Compile Include="UI\RelayCommands\RelayCommand.cs" />
+    <Compile Include="UI\ViewModel\ExportToDWGViewModel.cs" />
     <Compile Include="UI\ViewModel\NearFarCraneViewModel.cs" />
+    <Compile Include="UI\Windows\ExportToDWGWindow.xaml.cs">
+      <DependentUpon>ExportToDWGWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\Windows\NearFarCraneWindow.xaml.cs">
       <DependentUpon>NearFarCraneWindow.xaml</DependentUpon>
     </Compile>
@@ -74,12 +82,15 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Commands\AR\" />
-    <Folder Include="Commands\Export\" />
     <Folder Include="Commands\KR\" />
     <Folder Include="Commands\OV\" />
     <Folder Include="Commands\Utils\" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="UI\Windows\ExportToDWGWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\Windows\NearFarCraneWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
