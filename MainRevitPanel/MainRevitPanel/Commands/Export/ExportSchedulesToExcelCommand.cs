@@ -23,7 +23,6 @@ namespace MainRevitPanel.Commands.Export
 
             try
             {
-                // Собираем все спецификации
                 FilteredElementCollector collector = new FilteredElementCollector(doc);
                 List<ViewSchedule> schedules = collector
                     .OfClass(typeof(ViewSchedule))
@@ -43,7 +42,7 @@ namespace MainRevitPanel.Commands.Export
                     {
                         Filter = "Excel Files|*.xlsx",
                         Title = "Сохранить отчет",
-                        FileName = $"Спецификации_{DateTime.Now:yyyy-MM-dd}.xlsx"
+                        FileName = $"Спецификации_{DateTime.Now:dd-MM-yyyy}.xlsx"
                     };
 
                     if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)

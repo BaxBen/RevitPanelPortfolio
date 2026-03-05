@@ -44,6 +44,9 @@
     <Reference Include="Microsoft.IO.RecyclableMemoryStream, Version=1.4.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.IO.RecyclableMemoryStream.1.4.1\lib\net46\Microsoft.IO.RecyclableMemoryStream.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="RevitAPI, Version=24.2.0.0, Culture=neutral, processorArchitecture=AMD64">
@@ -81,20 +84,27 @@
     <Compile Include="Base\ViewModelBase.cs" />
     <Compile Include="Commands\Export\ExportSchedulesToExcelCommand.cs" />
     <Compile Include="Commands\Export\ExportToDWGCommand.cs" />
+    <Compile Include="Commands\VK\ClashDetectionTool.cs" />
     <Compile Include="Commands\VK\NearFarCraneCommand.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\FilterPipeAccessory.cs" />
     <Compile Include="Services\GraphPathFinder.cs" />
     <Compile Include="Services\VK\PathFinder.cs" />
-    <Compile Include="UI\Models\SheetData.cs" />
+    <Compile Include="UI\Models\ClashResult.cs" />
     <Compile Include="UI\RelayCommands\RelayCommand.cs" />
     <Compile Include="UI\ViewModel\NearFarCraneViewModel.cs" />
+    <Compile Include="UI\Windows\ClashReportWindow.xaml.cs">
+      <DependentUpon>ClashReportWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\Windows\ExportToDWGWindow.xaml.cs">
       <DependentUpon>ExportToDWGWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Windows\NearFarCraneWindow.xaml.cs">
       <DependentUpon>NearFarCraneWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Windows\ProgressBarWindow.xaml.cs">
+      <DependentUpon>ProgressBarWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Windows\ScheduleExportWindow.xaml.cs">
       <DependentUpon>ScheduleExportWindow.xaml</DependentUpon>
@@ -107,11 +117,16 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Commands\AR\" />
+    <Folder Include="Commands\BIM\" />
     <Folder Include="Commands\KR\" />
     <Folder Include="Commands\OV\" />
     <Folder Include="Commands\Utils\" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="UI\Windows\ClashReportWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\Windows\ExportToDWGWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -119,6 +134,10 @@
     <Page Include="UI\Windows\NearFarCraneWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\Windows\ProgressBarWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\Windows\ScheduleExportWindow.xaml">
       <SubType>Designer</SubType>

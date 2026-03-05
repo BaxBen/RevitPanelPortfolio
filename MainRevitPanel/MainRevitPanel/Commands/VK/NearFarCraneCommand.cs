@@ -42,73 +42,73 @@ namespace MainRevitPanel.Commands.VK
             try
             {
                 reference = uidoc.Selection.PickObject(ObjectType.Element, new FilterPipeAccessory());
-            }
-            catch
-            {
-                _isWindowOpen = false;
-                _isSubscription = false;
-                return Result.Succeeded;
-            }
+                var runScript = true;
+                Element elem = doc.GetElement(reference.ElementId);
 
-            var runScript = true;
-            Element elem = doc.GetElement(reference.ElementId);
+                FamilyInstance pipeAccessory = elem as FamilyInstance;
+                var connectorSet = pipeAccessory.MEPModel.ConnectorManager.Connectors;
 
-            FamilyInstance pipeAccessory = elem as FamilyInstance;
-            var connectorSet = pipeAccessory.MEPModel.ConnectorManager.Connectors;
-
-            int count = 0;
-            foreach (Connector connectors in connectorSet)
-            {
-                if (connectors.MEPSystem == null)
+                int count = 0;
+                foreach (Connector connectors in connectorSet)
                 {
-                    runScript =false;
-                    TaskDialog.Show("Ошибка", "Зацикленная система");
-                    break;
-                }
-                foreach (Connector connector in connectors.AllRefs)
-                {
-                    if (connector.ConnectorType != ConnectorType.End)
+                    if (connectors.MEPSystem == null)
                     {
-                        count++;
+                        runScript = false;
+                        TaskDialog.Show("Ошибка", "Зацикленная система");
+                        break;
+                    }
+                    foreach (Connector connector in connectors.AllRefs)
+                    {
+                        if (connector.ConnectorType != ConnectorType.End)
+                        {
+                            count++;
+                        }
+                    }
+                    if (count > 1)
+                    {
+                        TaskDialog.Show("Ошибка", "Кран без системы");
+                        runScript = false;
+                        break;
                     }
                 }
-                if (count > 1)
+
+                if (runScript && PathFinder.GetElementsSystem(doc, elem)
+                    .Where(x => x.GetTypeId().IntegerValue == elem.GetTypeId().IntegerValue).ToList().Count == 1)
                 {
-                    TaskDialog.Show("Ошибка", "Кран без системы");
+                    TaskDialog.Show("Уведомление", $"Кран в единственном экземпляре.");
                     runScript = false;
-                    break;
+
                 }
-            }
-            
-            if (runScript && PathFinder.GetElementsSystem(doc, elem)
-                .Where(x=> x.GetTypeId().IntegerValue == elem.GetTypeId().IntegerValue).ToList().Count == 1)
-            {
-                TaskDialog.Show("Уведомление", $"Кран в единственном экземпляре.");
-                runScript =false;
-               
-            }
 
-            List<List<string>> listReturn = null;
+                List<List<string>> listReturn = null;
 
-            if (runScript)
-            {
-                listReturn = PathFinder.Main(elem, doc);
-                _handlerDocumentChanged._doc = doc;
-                _handlerDocumentChanged._selectedElement = elem;
-                _externalEventDocumentChanged = ExternalEvent.Create(_handlerDocumentChanged);
+                if (runScript)
+                {
+                    listReturn = PathFinder.Main(elem, doc);
+                    _handlerDocumentChanged._doc = doc;
+                    _handlerDocumentChanged._selectedElement = elem;
+                    _externalEventDocumentChanged = ExternalEvent.Create(_handlerDocumentChanged);
+                }
+                else
+                {
+                    _isWindowOpen = false;
+                    _isSubscription = false;
+                }
+
+                if (listReturn != null)
+                {
+                    PrintWindow(uiapp, listReturn);
+                }
+
+                return Result.Succeeded;
             }
-            else 
+            catch (Exception ex)
             {
                 _isWindowOpen = false;
                 _isSubscription = false;
+                message = ex.Message;
+                return Result.Failed;
             }
-
-            if (listReturn != null)
-            {
-                PrintWindow(uiapp, listReturn);
-            }
-
-            return Result.Succeeded;
         }
 
         /// <summary>
