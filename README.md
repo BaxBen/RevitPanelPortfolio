@@ -45,9 +45,9 @@
 ## Установка
 1. Скачайте последний релиз
 2. В свойстве проекта прописан путь для быстрого копирования исполняемых файлов, если Свойства -> События сборки пусто, то вставте 
-    xcopy "$(TargetDir)*.*" "C:\Program Files\RevitPanel\" /y /i
-    xcopy "$(ProjectDir)$(ProjectName).addin" "%appdata%\Autodesk\Revit\Addins\2022\" /y /i
-    RevitPanel - Место где будет хранится все файлы .dll
+2.1. xcopy "$(TargetDir)*.*" "C:\Program Files\RevitPanel\" /y /i
+2.2. xcopy "$(ProjectDir)$(ProjectName).addin" "%appdata%\Autodesk\Revit\Addins\2022\" /y /i
+2.3. RevitPanel - Место где будет хранится все файлы .dll
 3. Запустите Revit
 
 ## Если отсутствует VS
