@@ -118,14 +118,7 @@ namespace MainRevitPanel.Commands.VK
         {
             if (!_isSubscription)
             {
-                try
-                {
-                    e.GetDocument().Application.DocumentChanged -= OnDocumentChanged;
-                }
-                catch (Exception ex)
-                {
-                    TaskDialog.Show("Error", ex.ToString());
-                }
+                e.GetDocument().Application.DocumentChanged -= OnDocumentChanged;
                 return;
             }
             _externalEventDocumentChanged.Raise();
@@ -149,7 +142,7 @@ namespace MainRevitPanel.Commands.VK
 
             var window = new NearFarCraneWindow();
             var viewModel = new NearFarCraneViewModel();
-            viewModel.LoadData(listReturn[2].First(), listReturn[1], listReturn[0]);
+            viewModel.LoadData(window, listReturn[2].First(), listReturn[1], listReturn[0]);
             _handlerDocumentChanged._window = window;
             WindowInteropHelper helper = new WindowInteropHelper(window);
             helper.Owner = revitHandle;

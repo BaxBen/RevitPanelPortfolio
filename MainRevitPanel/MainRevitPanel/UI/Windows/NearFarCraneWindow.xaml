@@ -4,7 +4,7 @@
         Background="White"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        Title="Задание 2"
+        Title="Поиск ближайшего и дальнего крана"
         Height="450" Width="700">
 
     <Window.Resources>
@@ -47,10 +47,8 @@
 
             <TextBlock>
                 <Run FontWeight="Bold"
-                    Foreground="#2196F3"
                     Text="Выбраный конектор: "/>
                 <Run FontWeight="Bold"
-                    Foreground="#2196F3"
                     Text="{Binding SelectedConnector}"/>
             </TextBlock>
 
@@ -72,11 +70,11 @@
 
                 <TextBlock Text="Дальний кран" 
                            FontWeight="Bold"
-                           Foreground="#E32636"
                            Margin="0,0,0,10"
                            Grid.Row="0"/>
 
                 <ListBox ItemsSource="{Binding ListBoxLeft}"
+                    SelectedItem="{Binding SelectedElement}"
                     Grid.Row="1" 
                     SelectionMode="Extended"
                     ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -95,11 +93,11 @@
 
                 <TextBlock Text="Ближний кран" 
                            FontWeight="Bold"
-                           Foreground="#4CAF50"
                            Margin="0,0,0,10"
                            Grid.Row="0"/>
 
                 <ListBox ItemsSource="{Binding ListBoxRight}"
+                    SelectedItem="{Binding SelectedElement}"
                     Grid.Row="1" 
                     Name="RightListBox"
                     SelectionMode="Extended"
@@ -109,5 +107,23 @@
 
             </Grid>
         </Grid>
+        <StackPanel Grid.Row="2" 
+            Orientation="Horizontal" 
+            HorizontalAlignment="Center"
+            Margin="0,0,0,10">
+
+            <Button x:Name="HighlightButton" 
+                Content="Подсветить выбранное" 
+                Command="{Binding HighlightCommand}"
+                Width="150" 
+                Margin="5"/>
+
+            <Button x:Name="CloseButton" 
+                Content="Закрыть" 
+                Command="{Binding CloseCommand}"
+                Width="100" 
+                Margin="5"/>
+        </StackPanel>
+
     </Grid>
 </Window>

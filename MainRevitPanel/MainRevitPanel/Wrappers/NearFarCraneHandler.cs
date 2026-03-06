@@ -66,7 +66,7 @@ namespace MainRevitPanel.Wrapper
             {
                 var listReturn = PathFinder.Main(_selectedElement, _doc);
                 NearFarCraneViewModel viewModel = new NearFarCraneViewModel();
-                viewModel.LoadData(listReturn[2].First(), listReturn[1], listReturn[0]);
+                viewModel.LoadData(_window, listReturn[2].First(), listReturn[1], listReturn[0]);
                 _window.DataContext = viewModel;
             }
             else
