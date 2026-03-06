@@ -1,15 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using MainRevitPanel.Base;
+using MainRevitPanel.Services;
+using MainRevitPanel.UI.RelayCommands;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 
 
-public class NearFarCraneViewModel : INotifyPropertyChanged
+public class NearFarCraneViewModel : ViewModelBase
 {
     private List<string> _listBoxLeft;
     private List<string> _listBoxRight;
     private string _selectedConnector;
+    private readonly IRevitService _revitService;
 
+    public RelayCommand CloseCommand { get; }
+    public RelayCommand HighlightCommand { get; }
+    public string SelectedElement { get;set; }
+    private Window _window { get; set; }
     public List<string> ListBoxLeft
     {
         get => _listBoxLeft;
@@ -42,12 +51,38 @@ public class NearFarCraneViewModel : INotifyPropertyChanged
 
     public NearFarCraneViewModel()
     {
+        CloseCommand = new RelayCommand(ExecuteClose, CanExecuteClose);
+        HighlightCommand = new RelayCommand(ExecuteHighlight, CanExecuteHighlight);
         ListBoxLeft = new List<string>();
         ListBoxRight = new List<string>();
     }
 
-    public void LoadData(string selectedElement, List<string> listElementLeft, List<string> listElementRight)
+    private bool CanExecuteClose(object parameter)
     {
+        if (_window == null) return false;
+        else return true;
+    }
+    private bool CanExecuteHighlight(object parameter)
+    {
+        if (_window == null) return false;
+        else return true;
+    }
+    private void ExecuteHighlight(object parameter)
+    {
+        //ОСтановился здесь!!!!!!!!
+        //TaskDialog.Show("Внимание", "Функция в разработке, юудет доступна позже");
+
+        //var idsToSelect = SelectedElement;
+        //_revitService.HighlightElements(idsToSelect);
+    }
+    private void ExecuteClose(object parameter)
+    {
+        _window.Close();
+    }
+
+    public void LoadData(Window window, string selectedElement, List<string> listElementLeft, List<string> listElementRight)
+    {
+        _window = window;
         SelectedConnector = selectedElement;
 
         ListBoxLeft.Clear();
@@ -62,11 +97,5 @@ public class NearFarCraneViewModel : INotifyPropertyChanged
         {
             ListBoxRight.Add(row);
         }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

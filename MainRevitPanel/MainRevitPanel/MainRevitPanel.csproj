@@ -90,9 +90,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\FilterPipeAccessory.cs" />
     <Compile Include="Services\GraphPathFinder.cs" />
+    <Compile Include="Services\IRevitService.cs" />
+    <Compile Include="Services\RevitService.cs" />
     <Compile Include="Services\VK\PathFinder.cs" />
     <Compile Include="UI\Models\ClashResult.cs" />
-    <Compile Include="UI\RelayCommands\RelayCommand.cs" />
+    <Compile Include="UI\RelayCommand.cs" />
     <Compile Include="UI\ViewModel\NearFarCraneViewModel.cs" />
     <Compile Include="UI\Windows\ClashReportWindow.xaml.cs">
       <DependentUpon>ClashReportWindow.xaml</DependentUpon>
@@ -146,7 +148,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(TargetDir)*.*" "C:\Program Files\RevitAPITraining\" /y /i
+    <PostBuildEvent>xcopy "$(TargetDir)*.*" "C:\Program Files\RevitPanel\" /y /i
 xcopy "$(ProjectDir)$(ProjectName).addin" "%25appdata%25\Autodesk\Revit\Addins\2022\" /y /i</PostBuildEvent>
   </PropertyGroup>
 </Project>
