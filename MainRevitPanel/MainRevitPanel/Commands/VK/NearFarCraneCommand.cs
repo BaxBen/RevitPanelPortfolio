@@ -1,41 +1,44 @@
 ﻿using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
-using Autodesk.Revit.DB.Events;
-using Autodesk.Revit.DB.Mechanical;
+using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
+using MainRevitPanel.Base;
+using MainRevitPanel.Services;
+using MainRevitPanel.UI.EventsArgs;
+using MainRevitPanel.UI.Models;
 using MainRevitPanel.UI.Windows;
 using MainRevitPanel.Wrapper;
-using MainRevitPanel.Services.VK;
-using MainRevitPanel.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Interop;
-using MainRevitPanel.Services;
 
 namespace MainRevitPanel.Commands.VK
 {
     [Transaction(TransactionMode.ReadOnly)]
     public class NearFarCraneCommand : CommandBase
     {
-        private static ExternalEvent _externalEventDocumentChanged;
-        private static NearFarCraneHandler _handlerDocumentChanged = new NearFarCraneHandler();
+        private static Document _doc;
+        // Словарь ключь индекс секции, значение все элементы секции.
+        public static Dictionary<int, HashSet<int>> _sectionElements;
+        // Словарь ключь индекс секции, значение длина секции секции.
+        public static Dictionary<int, double> _sectionLength;
+        public static Dictionary<int, HashSet<int>> _connectorElements = new Dictionary<int, HashSet<int>>();
+
         private static bool _isWindowOpen = false;
-        public bool _isSubscription = true;
+        private  ExternalEvent _externalEvent;
+        private  ZoomElement _zoomHandler;
 
         public override Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIApplication uiapp = GetUIApplication(commandData);
             UIDocument uidoc = GetUIDocument(commandData);
             Document doc = GetDocument(commandData);
+            _doc = doc;
 
             if (_isWindowOpen) return Result.Cancelled;
             _isWindowOpen = true;
-
-            if (_isSubscription)
-                doc.Application.DocumentChanged += OnDocumentChanged;
-
 
             Reference reference = null;
 
@@ -72,27 +75,22 @@ namespace MainRevitPanel.Commands.VK
                     }
                 }
 
-                if (runScript && PathFinder.GetElementsSystem(doc, elem)
+                if (runScript && GetElementsSystem(doc, elem)
                     .Where(x => x.GetTypeId().IntegerValue == elem.GetTypeId().IntegerValue).ToList().Count == 1)
                 {
                     TaskDialog.Show("Уведомление", $"Кран в единственном экземпляре.");
                     runScript = false;
-
                 }
 
-                List<List<string>> listReturn = null;
+                List<SystemMEP> listReturn = null;
 
                 if (runScript)
                 {
-                    listReturn = PathFinder.Main(elem, doc);
-                    _handlerDocumentChanged._doc = doc;
-                    _handlerDocumentChanged._selectedElement = elem;
-                    _externalEventDocumentChanged = ExternalEvent.Create(_handlerDocumentChanged);
+                    listReturn = Main(elem);
                 }
                 else
                 {
                     _isWindowOpen = false;
-                    _isSubscription = false;
                 }
 
                 if (listReturn != null)
@@ -105,23 +103,9 @@ namespace MainRevitPanel.Commands.VK
             catch (Exception ex)
             {
                 _isWindowOpen = false;
-                _isSubscription = false;
-                message = ex.Message;
+                if (ex.Message != "The user aborted the pick operation.") message = ex.Message;
                 return Result.Failed;
             }
-        }
-
-        /// <summary>
-        /// Обрабатывает событие DocumentChanged
-        /// </summary>
-        private void OnDocumentChanged(object sender, DocumentChangedEventArgs e)
-        {
-            if (!_isSubscription)
-            {
-                e.GetDocument().Application.DocumentChanged -= OnDocumentChanged;
-                return;
-            }
-            _externalEventDocumentChanged.Raise();
         }
 
         /// <summary>
@@ -130,27 +114,437 @@ namespace MainRevitPanel.Commands.VK
         private void OnClosed(bool param)
         {
             _isWindowOpen = param;
-            _isSubscription = param;
         }
 
         /// <summary>
         /// Отображает модальное окно команды, устанавливая его владельцем главное окно Revit
         /// </summary>
-        private void PrintWindow(UIApplication uiapp, List<List<string>> listReturn)
+        private void PrintWindow(UIApplication uiapp, List<SystemMEP> listReturn)
         {
             var revitHandle = uiapp.MainWindowHandle;
 
             var window = new NearFarCraneWindow();
             var viewModel = new NearFarCraneViewModel();
-            viewModel.LoadData(window, listReturn[2].First(), listReturn[1], listReturn[0]);
-            _handlerDocumentChanged._window = window;
+            viewModel.LoadData(window, listReturn);
+
             WindowInteropHelper helper = new WindowInteropHelper(window);
             helper.Owner = revitHandle;
             window.Topmost = false;
 
+            _zoomHandler = new ZoomElement();
+            _externalEvent = ExternalEvent.Create(_zoomHandler);
+            viewModel.ZoomRequested += OnZoomRequested;
+
             window.DataContext = viewModel;
             window.Show();
             window.Closed += (s, e) => OnClosed(false);
+        }
+
+        private void OnZoomRequested(object sender, ZoomRequestedEventArgs e)
+        {
+            _zoomHandler.SetParameters(e.Parameter);
+            _externalEvent.Raise();
+        }
+
+        /// <summary>
+        /// Находит все элементы в контуре и возварает HasSet<Element>
+        /// </summary>
+        public static HashSet<Element> GetElementsSystem(Document doc, Element elem)
+        {
+
+            FamilyInstance pipeAccessory = elem as FamilyInstance;
+            var connectorSet = pipeAccessory.MEPModel.ConnectorManager.Connectors;
+
+            HashSet<int> pipingNetwork = new HashSet<int> { elem.Id.IntegerValue };
+
+            foreach (Connector connector in connectorSet)
+            {
+                foreach (Connector item in connector.AllRefs)
+                {
+                    if (item.ConnectorType == ConnectorType.End)
+                    {
+                        var mepSystem = item.MEPSystem;
+                        for (int y = 0; y < mepSystem.SectionsCount; y++)
+                        {
+                            for (int i = 0; i < mepSystem.SectionsCount; i++)
+                            {
+                                HashSet<int> listElementIds = mepSystem.GetSectionByIndex(i).GetElementIds().Select(x => x.IntegerValue).ToHashSet();
+                                if (listElementIds.Intersect(pipingNetwork).Any())
+                                {
+                                    foreach (int elementId in listElementIds)
+                                    {
+                                        pipingNetwork.Add(elementId);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return pipingNetwork.Select(x => doc.GetElement(new ElementId(x))).ToHashSet();
+        }
+
+        /// <summary>
+        /// Добавляет в словари _sectionLength длину секций и _sectionElements сами секции
+        /// </summary>
+        private static void GetSectionElements(Element elem)
+        {
+            FamilyInstance pipeAccessory = elem as FamilyInstance;
+            var connectorSet = pipeAccessory.MEPModel.ConnectorManager.Connectors;
+            Dictionary<int, HashSet<int>> dict = new Dictionary<int, HashSet<int>>();
+            Dictionary<int, double> dictSectionLength = new Dictionary<int, double>();
+
+            foreach (Connector connectors in connectorSet)
+            {
+                HashSet<object> hasSet = new HashSet<object>();
+                foreach (Connector connector in connectors.AllRefs)
+                {
+                    if (connector.ConnectorType == ConnectorType.End)
+                    {
+                        var section = connector.MEPSystem.SectionsCount;
+                        for (int i = 0; i < section; i++)
+                        {
+                            if (!dict.ContainsKey(i))
+                            {
+                                //TaskDialog.Show($"{i}", $"{string.Join(", ", connector.MEPSystem.GetSectionByIndex(i).GetElementIds().Select(x => x.IntegerValue).ToHashSet())}");
+                                dict[i] = connector.MEPSystem.GetSectionByIndex(i).GetElementIds().Select(x => x.IntegerValue).ToHashSet();
+                                dictSectionLength[i] = UnitUtils.ConvertFromInternalUnits(connector.MEPSystem.GetSectionByIndex(i).TotalCurveLength, UnitTypeId.Millimeters);
+                            }
+                        }
+                    }
+                }
+            }
+
+            _sectionLength = dictSectionLength;
+            _sectionElements = dict;
+        }
+
+        /// <summary>
+        /// Возвращает номер секции в зависимости от переданного элемента
+        /// </summary>
+        private static int GetSectionForElement(Element elem)
+        {
+            foreach (var row in _sectionElements)
+            {
+                var key = row.Key;
+                var values = row.Value;
+                if (values.Contains(elem.Id.IntegerValue))
+                {
+                    return key;
+                }
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Возвращает словарь с конекторами Key(Коннектор) : Value(Трубы)
+        /// </summary>
+        private static Dictionary<int, List<int>> GetArrayPath()
+        {
+
+            var dictPathConnection = new Dictionary<int, List<int>>();
+            foreach (var row1 in _sectionElements)
+            {
+                var key1 = row1.Key;
+                var values1 = row1.Value;
+                var list = new List<int>();
+                foreach (var row2 in _sectionElements)
+                {
+                    var key2 = row2.Key;
+                    var values2 = row2.Value;
+                    if (key1 == key2) continue;
+
+                    if (values1.Intersect(values2).Any())
+                    {
+                        list.Add(key2);
+                    }
+                }
+                dictPathConnection[key1] = list;
+            }
+
+            return dictPathConnection;
+
+        }
+
+        /// <summary>
+        /// Возвращает словарь в зависимости от переданной секции Key(Коннектор) : Value(Трубы)
+        /// </summary>
+        private static Dictionary<int, List<int>> GetArrayPathSection(int section)
+        {
+            var dict = new Dictionary<int, List<int>>();
+            var listConnectors = _sectionElements[section]
+                .Select(x => _doc.GetElement(new ElementId(x)))
+                .Where(x => x is FamilyInstance)
+                .Select(x => x as FamilyInstance)
+                .Select(x => x.MEPModel.ConnectorManager)
+                .ToList();
+
+            foreach (var connectorSet in listConnectors)
+            {
+                HashSet<int> hasSet = new HashSet<int>();
+                foreach (Connector connectors in connectorSet.Connectors)
+                {
+                    foreach (Connector connector in connectors.AllRefs)
+                    {
+                        if (connector.ConnectorType == ConnectorType.End)
+                        {
+                            hasSet.Add(connector.Owner.Id.IntegerValue);
+                        }
+                    }
+                    //hasSet.Add(connectors.Owner.Id.IntegerValue);
+                }
+                //TaskDialog.Show($"PROVERKA {connectorSet.Owner.Id.IntegerValue}", $"{string.Join(", ", hasSet)}");
+                _connectorElements[connectorSet.Owner.Id.IntegerValue] = hasSet;
+                dict[connectorSet.Owner.Id.IntegerValue] = hasSet.ToList();
+            }
+
+            var dictReturn = new Dictionary<int, List<int>>();
+            foreach (var row1 in dict)
+            {
+                var key1 = row1.Key;
+                var values1 = row1.Value;
+                var list = new List<int>();
+                foreach (var row2 in dict)
+                {
+                    var key2 = row2.Key;
+                    var values2 = row2.Value;
+                    if (key1 == key2) continue;
+
+                    if (values1.Intersect(values2).Any())
+                    {
+                        list.Add(key2);
+                    }
+                }
+                dictReturn[key1] = list;
+                //TaskDialog.Show($"Connector - {key1}", $"Connectors - {string.Join(", ", list)}");
+            }
+            return dictReturn;
+
+        }
+
+        /// <summary>
+        /// Основная исполняемая функция
+        /// </summary>
+        public static List<SystemMEP> Main(Element elem)
+        {
+            GetSectionElements(elem);
+
+            // Словарь ключь Id крана, значение все элементы участвующие в пути.
+            var dictValveElements = new Dictionary<int, HashSet<int>>();
+            // Словарь ключь Id крана, значение длина пути.
+            var dictValveLength = new Dictionary<int, double>();
+
+            var arraPath = GetArrayPath();
+
+            int start = GetSectionForElement(elem);
+
+            List<Element> listValve = GetElementsSystem(_doc, elem)
+                .Where(x => x.GetTypeId().IntegerValue == elem.GetTypeId().IntegerValue && x.Id.IntegerValue != elem.Id.IntegerValue)
+                .ToList();
+
+
+            try
+            {
+                foreach (Element valve in listValve)
+                {
+                    int end = GetSectionForElement(valve);
+                    List<int> paths = new List<int>();
+                    HashSet<int> hasSet = new HashSet<int>();
+                    var referencePath = GraphPathFinder.FindPath(arraPath, start, end);
+
+                    if (start != end)
+                    {
+                        var countEnd = _sectionElements[end]
+                            .Select(x => _doc.GetElement(new ElementId(x)))
+                            .Where(x => x.GetTypeId().IntegerValue == elem.GetTypeId().IntegerValue).Count();
+                        var countStart = _sectionElements[start]
+                            .Select(x => _doc.GetElement(new ElementId(x)))
+                            .Where(x => x.GetTypeId().IntegerValue == elem.GetTypeId().IntegerValue).Count();
+
+                        foreach (var path in referencePath)
+                        {
+                            if (path == end && countEnd > 1)
+                            {
+                                continue;
+                            }
+                            else if (path == start && countStart > 1)
+                            {
+                                continue;
+                            }
+
+                            if (path == end && countEnd == 1)
+                            {
+                                var listItems = _sectionElements[end]
+                                .Intersect(_sectionElements[referencePath[referencePath.Count - 2]]).ToList();
+                                var connectorTee = listItems.First();
+                                hasSet.UnionWith(HasSetForPipesInOneSystem(end, connectorTee, valve.Id.IntegerValue));
+                                continue;
+                            }
+                            if (path == start && countStart == 1)
+                            {
+                                var listItems = _sectionElements[start]
+                                .Intersect(_sectionElements[referencePath[1]]).ToList();
+                                var connectorTee = listItems.First();
+                                hasSet.UnionWith(HasSetForPipesInOneSystem(start, connectorTee, elem.Id.IntegerValue));
+                                continue;
+                            }
+                            foreach (int elementId in _sectionElements[path])
+                            {
+                                hasSet.Add(elementId);
+                            }
+                        }
+
+                        if (countEnd > 1)
+                        {
+                            var listItems = _sectionElements[end]
+                                .Intersect(_sectionElements[referencePath[referencePath.Count - 2]]).ToList();
+                            var connectorTee = listItems.First();
+                            paths = GraphPathFinder.FindPath(GetArrayPathSection(end), connectorTee, valve.Id.IntegerValue);
+
+                            paths.Reverse();
+                            foreach (int path in paths)
+                            {
+
+                                if (paths.IndexOf(path) > 0)
+                                {
+                                    var index = paths.IndexOf(path) - 1;
+                                    var x = paths[index];
+                                    var colection = _connectorElements[path].Intersect(_connectorElements[x]);
+                                    hasSet.Add(path);
+                                    hasSet.UnionWith(colection);
+                                }
+                            }
+                        }
+                        if (countStart > 1)
+                        {
+                            var listItems = _sectionElements[start]
+                                .Intersect(_sectionElements[referencePath[1]]).ToList();
+                            var connectorTee = listItems.First();
+                            paths = GraphPathFinder.FindPath(GetArrayPathSection(start), connectorTee, elem.Id.IntegerValue);
+
+                            paths.Reverse();
+                            foreach (int path in paths)
+                            {
+
+                                if (paths.IndexOf(path) > 0)
+                                {
+                                    var index = paths.IndexOf(path) - 1;
+                                    var x = paths[index];
+                                    var colection = _connectorElements[path].Intersect(_connectorElements[x]);
+                                    hasSet.Add(path);
+                                    hasSet.UnionWith(colection);
+                                }
+                            }
+                        }
+
+                        dictValveElements[valve.Id.IntegerValue] = hasSet;
+
+
+                    }
+                    if (start == end)
+                    {
+                        dictValveElements[valve.Id.IntegerValue] = HasSetForPipesInOneSystem(start, elem.Id.IntegerValue, valve.Id.IntegerValue);
+                    }
+                    //PrintPath(paths);
+                }
+            }
+            catch (Exception ex)
+            {
+                TaskDialog.Show("Error", ex.ToString());
+            }
+
+            foreach (var row in dictValveElements)
+            {
+                double lengthPath = 0;
+                foreach (var id in row.Value)
+                {
+                    Element element = _doc.GetElement(new ElementId(id));
+                    if (element is Pipe)
+                    {
+                        double length = UnitUtils.ConvertFromInternalUnits(element.LookupParameter("Длина").AsDouble(), UnitTypeId.Millimeters);
+                        lengthPath += length;
+                    }
+                }
+                dictValveLength[row.Key] = Math.Round(lengthPath, 2);
+            }
+
+            List<SystemMEP> listSystemMEP = new List<SystemMEP>();
+
+            foreach (var row in dictValveLength)
+            {
+                var id = row.Key;
+                var length = row.Value;
+                string stringpPath = lineBreak(dictValveElements[id].ToList());
+                string name = _doc.GetElement(new ElementId(id)).Name;
+
+
+                listSystemMEP.Add(new SystemMEP
+                {
+                    Id = id,
+                    Name = name,
+                    StringPipe = stringpPath,
+                    ListPipe = dictValveElements[id].ToList(),
+                    Length = length
+                });
+            }
+
+            return listSystemMEP.OrderBy(x => x.Length).ToList();
+        }
+
+        /// <summary>
+        /// Возвращает HasSet<int> путь от startValve до endValve в секции section
+        /// </summary>
+        private static HashSet<int> HasSetForPipesInOneSystem(int section, int startValve, int endValve)
+        {
+            var hasSet = new HashSet<int>();
+            var paths = GraphPathFinder.FindPath(GetArrayPathSection(section), startValve, endValve);
+            foreach (var path in paths)
+            {
+                foreach (var id in _connectorElements[path])
+                {
+                    if ((path == paths.Last() || path == paths.First()) && paths.Count > 2)
+                    {
+                        hasSet.Add(path);
+                    }
+                    else if (paths.Count == 2)
+                    {
+                        hasSet = new HashSet<int>(_connectorElements[paths.First()].Intersect(_connectorElements[paths.Last()]).ToList());
+                    }
+                    else
+                    {
+                        hasSet.Add(id);
+                    }
+                }
+                hasSet.Add(path);
+            }
+            return hasSet;
+        }
+
+        /// <summary>
+        /// Возвращает string с переносом слов в зависимости от количество слов в строке countString
+        /// </summary>
+        private static string lineBreak(List<int> list, int countString = 8)
+        {
+            string stringpPath = string.Empty;
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                stringpPath += list[i];
+
+                if (i == list.Count - 1)
+                {
+                }
+                else if ((i + 1) % countString == 0)
+                {
+                    stringpPath += ",\n";
+                }
+                else
+                {
+                    stringpPath += ", ";
+                }
+            }
+
+            return stringpPath;
         }
     }
 }

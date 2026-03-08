@@ -111,10 +111,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\FilterPipeAccessory.cs" />
     <Compile Include="Services\GraphPathFinder.cs" />
-    <Compile Include="Services\IRevitService.cs" />
-    <Compile Include="Services\RevitService.cs" />
-    <Compile Include="Services\VK\PathFinder.cs" />
+    <Compile Include="Wrappers\ZoomElement.cs" />
     <Compile Include="UI\Models\ClashResult.cs" />
+    <Compile Include="UI\Models\SystemMEP.cs" />
+    <Compile Include="UI\EventsArgs\ZoomRequestedEventArgs.cs" />
     <Compile Include="UI\RelayCommand.cs" />
     <Compile Include="UI\ViewModel\NearFarCraneViewModel.cs" />
     <Compile Include="UI\Windows\ClashReportWindow.xaml.cs">
@@ -132,7 +132,6 @@
     <Compile Include="UI\Windows\ScheduleExportWindow.xaml.cs">
       <DependentUpon>ScheduleExportWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Wrappers\NearFarCraneHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MainRevitPanel.addin" />

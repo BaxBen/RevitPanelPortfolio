@@ -5,125 +5,52 @@
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         Title="Поиск ближайшего и дальнего крана"
-        Height="450" Width="700">
+        Height="450" Width="800">
 
-    <Window.Resources>
-        <Style TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="Arial"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Foreground" Value="Black"/>
-        </Style>
-
-        <Style TargetType="ListBox">
-            <Setter Property="FontFamily" Value="Arial"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="BorderBrush" Value="#DDDDDD"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Background" Value="White"/>
-        </Style>
-
-        <Style TargetType="ListBoxItem">
-            <Setter Property="Padding" Value="8,5"/>
-            <Setter Property="Margin" Value="2,0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#E3F2FD"/>
-                    <Setter Property="BorderBrush" Value="#2196F3"/>
-                    <Setter Property="BorderThickness" Value="1"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-    </Window.Resources>
-
-    <Grid Margin="20">
+    <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="0,0,0,15">
+        <TextBlock Grid.Row="0" 
+               x:Name="SummaryText" 
+               FontSize="14" 
+               FontWeight="Bold" 
+               Margin="0,0,0,10"/>
 
-            <TextBlock>
-                <Run FontWeight="Bold"
-                    Text="Выбраный конектор: "/>
-                <Run FontWeight="Bold"
-                    Text="{Binding SelectedConnector}"/>
-            </TextBlock>
-
-        </Grid>
-        
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <Grid Grid.Column="0" Margin="0,0,10,0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <TextBlock Text="Дальний кран" 
-                           FontWeight="Bold"
-                           Margin="0,0,0,10"
-                           Grid.Row="0"/>
-
-                <ListBox ItemsSource="{Binding ListBoxLeft}"
-                    SelectedItem="{Binding SelectedElement}"
-                    Grid.Row="1" 
-                    SelectionMode="Extended"
-                    ScrollViewer.VerticalScrollBarVisibility="Auto"
-                    ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                </ListBox>
-            </Grid>
-
-
-            <!-- Правый список -->
-            <Grid Grid.Column="2" Margin="10,0,0,0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <TextBlock Text="Ближний кран" 
-                           FontWeight="Bold"
-                           Margin="0,0,0,10"
-                           Grid.Row="0"/>
-
-                <ListBox ItemsSource="{Binding ListBoxRight}"
-                    SelectedItem="{Binding SelectedElement}"
-                    Grid.Row="1" 
-                    Name="RightListBox"
-                    SelectionMode="Extended"
-                    ScrollViewer.VerticalScrollBarVisibility="Auto"
-                    ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                </ListBox>
-
-            </Grid>
-        </Grid>
-        <StackPanel Grid.Row="2" 
-            Orientation="Horizontal" 
-            HorizontalAlignment="Center"
+        <DataGrid ItemsSource="{Binding Items}"
+            SelectedItem="{Binding SelectedItem}"
+            Grid.Row="1" 
+            AutoGenerateColumns="False" 
+            IsReadOnly="True"
+            SelectionMode="Single"
             Margin="0,0,0,10">
 
-            <Button x:Name="HighlightButton" 
-                Content="Подсветить выбранное" 
-                Command="{Binding HighlightCommand}"
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Кран" Binding="{Binding Name}" Width="180"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="100"/>
+                <DataGridTextColumn Header="Путь" Binding="{Binding StringPipe}" Width="400"/>
+                <DataGridTextColumn Header="Длина (мм²)" Binding="{Binding Length, StringFormat={}{0:F2}}" Width="76"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="2" 
+                Orientation="Horizontal" 
+                HorizontalAlignment="Center"
+                Margin="0,0,0,10">
+
+            <Button Content="Подсветить выбранное" 
                 Width="150" 
-                Margin="5"/>
+                Margin="5"
+                Command="{Binding HighlightCommand}"/>
 
-            <Button x:Name="CloseButton" 
-                Content="Закрыть" 
-                Command="{Binding CloseCommand}"
+            <Button Content="Закрыть" 
                 Width="100" 
-                Margin="5"/>
+                Margin="5"
+                Command="{Binding CloseCommand}"/>
         </StackPanel>
-
     </Grid>
 </Window>
