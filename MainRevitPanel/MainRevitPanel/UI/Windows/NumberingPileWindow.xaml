@@ -1,0 +1,64 @@
+﻿<Window x:Class="MainRevitPanel.UI.Windows.NumberingPileWindow"
+            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+            xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+            xmlns:local="clr-namespace:MainRevitPanel.UI.Windows"
+            mc:Ignorable="d" 
+            Title="Выбор параметров" Height="250" Width="450"
+            WindowStartupLocation="CenterScreen">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Первый выпадающий список -->
+        <TextBlock Grid.Row="0" Grid.Column="0" 
+                   Text="Тип выбора:" 
+                   VerticalAlignment="Center"
+                   FontSize="14"
+                   FontWeight="SemiBold"/>
+
+        <ComboBox Grid.Row="0" Grid.Column="1" 
+                ItemsSource="{Binding SelectionTypes}"
+                DisplayMemberPath="Key" 
+                SelectedValuePath="Value"
+                SelectedValue="{Binding SelectedType}"
+                Margin="5" 
+                Height="35"
+                FontSize="14"/>
+        <!-- Второй выпадающий список -->
+        <TextBlock Grid.Row="1" Grid.Column="0" 
+                   Text="Расположение:" 
+                   VerticalAlignment="Center"
+                   FontSize="14"
+                   FontWeight="SemiBold"
+                   Margin="0,15,0,0"/>
+
+        <ComboBox Grid.Row="1" Grid.Column="1" 
+                ItemsSource="{Binding Positions}"
+                DisplayMemberPath="Key" 
+                SelectedValuePath="Value"
+                SelectedValue="{Binding SelectedPosition}"
+                Margin="5,20,5,5" 
+                Height="35"
+                FontSize="14"/>
+        <!-- Кнопка применения -->
+        <Button Grid.Row="2" Grid.ColumnSpan="2"
+                Content="Применить"
+                Command="{Binding ApplyCommand}"
+                Height="35"
+                Width="120"
+                Margin="0,20,0,0"
+                HorizontalAlignment="Center"/>
+    </Grid>
+</Window>

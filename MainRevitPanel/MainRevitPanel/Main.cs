@@ -2,6 +2,7 @@
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using MainRevitPanel.Commands.Export;
+using MainRevitPanel.Commands.KR;
 using MainRevitPanel.Commands.VK;
 using System;
 using System.Collections.Generic;
@@ -108,6 +109,16 @@ namespace MainRevitPanel
                 "Пользователь выбирает спецификаций для экспорта"
                 );
         }
+        private void KRPanel(RibbonPanel panel)
+        {
+            PushButton button1 = CreateButton(
+                panel,
+                "Нумерация свай",
+                "Нумерация свай",
+                typeof(NumberingPileCommand),
+                "Пользователь выбирает сваи для нумерации"
+                );
+        }
 
         private void SetupPanel(UIControlledApplication application)
         {
@@ -115,6 +126,7 @@ namespace MainRevitPanel
             NavigatorPanel(application);
             OVPanel(_dictPanel["ОВ"]);
             ExportPanel(_dictPanel["Экспорт"]);
+            //KRPanel(_dictPanel["КР"]);
         }
 
 

@@ -105,12 +105,19 @@
     <Compile Include="Base\ViewModelBase.cs" />
     <Compile Include="Commands\Export\ExportSchedulesToExcelCommand.cs" />
     <Compile Include="Commands\Export\ExportToDWGCommand.cs" />
+    <Compile Include="Commands\KR\NumberingPileCommand.cs" />
     <Compile Include="Commands\VK\ClashDetectionTool.cs" />
     <Compile Include="Commands\VK\NearFarCraneCommand.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\FilterPipeAccessory.cs" />
     <Compile Include="Services\GraphPathFinder.cs" />
+    <Compile Include="UI\EventsArgs\ApplRequestedEventArgs.cs" />
+    <Compile Include="UI\ViewModel\NumberingPileViewModel.cs" />
+    <Compile Include="UI\Windows\NumberingPileWindow.xaml.cs">
+      <DependentUpon>NumberingPileWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Wrappers\NumberingPileEventHandler.cs" />
     <Compile Include="Wrappers\ZoomElement.cs" />
     <Compile Include="UI\Models\ClashResult.cs" />
     <Compile Include="UI\Models\SystemMEP.cs" />
@@ -140,7 +147,6 @@
   <ItemGroup>
     <Folder Include="Commands\AR\" />
     <Folder Include="Commands\BIM\" />
-    <Folder Include="Commands\KR\" />
     <Folder Include="Commands\OV\" />
     <Folder Include="Commands\Utils\" />
   </ItemGroup>
@@ -156,6 +162,10 @@
     <Page Include="UI\Windows\NearFarCraneWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\Windows\NumberingPileWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\Windows\ProgressBarWindow.xaml">
       <SubType>Designer</SubType>
