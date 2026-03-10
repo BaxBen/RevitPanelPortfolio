@@ -108,6 +108,15 @@ namespace MainRevitPanel
                 typeof(ExportSchedulesToExcelCommand),
                 "Пользователь выбирает спецификаций для экспорта"
                 );
+            
+            PushButton button3 = CreateButton(
+                panel,
+                "Экспорт модели в IFC",
+                "Экспорт модели в IFC",
+                typeof(ExportToIFCCommand),
+                "Пользователь выбирает параметры настроек"
+                );
+
         }
         private void KRPanel(RibbonPanel panel)
         {

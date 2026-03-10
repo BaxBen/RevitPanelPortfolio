@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace MainRevitPanel.UI.RelayCommands
+namespace MainRevitPanel.UI
 {
     public class RelayCommand : ICommand
     {
