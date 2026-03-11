@@ -46,7 +46,7 @@ namespace MainRevitPanel.Wrappers
                         GIP.LoadData(Path.Combine(_desktopPath, _name + ".ifc"), string.Empty, doc.Title);
                         if (GIP.apiToken?.Any() ?? false)
                         {
-                            GIP.Main();
+                            GIP.MainByPlane();
                         }
                         else
                         {
@@ -57,9 +57,8 @@ namespace MainRevitPanel.Wrappers
                             window.ShowDialog();
                             if (GIP.apiToken?.Any() ?? false)
                             {
-                                GIP.Main();
+                                GIP.MainByPlane();
                             }
-
                         }
                     }
                 }

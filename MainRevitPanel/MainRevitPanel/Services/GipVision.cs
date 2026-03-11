@@ -20,7 +20,7 @@ namespace MainRevitPanel.Services
         private string filePath { get; set; }
         private static string url = "https://api-cpsk-superapp.gip.su/";
         private string Name { get; set; }
-        public void Main()
+        public void MainByPlane()
         {
             string url_by_panel = url + "api/gip-vision/v1/session/by_plane/";
             using (var http = new HttpClient())
