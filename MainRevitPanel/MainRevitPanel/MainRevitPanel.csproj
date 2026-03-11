@@ -52,6 +52,7 @@
   <ItemGroup>
     <Reference Include="Autodesk.IFC.Export.UI">
       <HintPath>..\..\..\..\..\..\..\Program Files\Autodesk\Revit 2022\AddIns\IFCExporterUI\Autodesk.IFC.Export.UI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="EPPlus, Version=7.0.0.3, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
       <HintPath>..\packages\EPPlus.7.0.0\lib\net462\EPPlus.dll</HintPath>
