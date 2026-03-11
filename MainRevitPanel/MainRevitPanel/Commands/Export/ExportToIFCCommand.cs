@@ -35,11 +35,12 @@ namespace MainRevitPanel.Commands.Export
                 string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
                 string ifcPath = Path.Combine(desktopPath, doc.Title + ".ifc");
 
-                // Простой диалог для подтверждения
-                ExportToIFCWindow window = new ExportToIFCWindow();
-                ExportToIFCViewModel viewModel = new ExportToIFCViewModel();
                 _handler = new ExportToIFCEventHandler();
                 _externalEvent = ExternalEvent.Create(_handler);
+
+                ExportToIFCWindow window = new ExportToIFCWindow();
+                ExportToIFCViewModel viewModel = new ExportToIFCViewModel();
+
                 viewModel.LoadData(window, IFCConfiguration().Keys.OrderBy(x=>x).ToList(), ifcPath, doc.Title);
                 viewModel.ExportToIFCRequested += OnExportToIFCRequested;
                 window.DataContext = viewModel; 
@@ -59,9 +60,11 @@ namespace MainRevitPanel.Commands.Export
             // Базовые настройки
             string name = Path.GetFileNameWithoutExtension(e.PathSave);
             string desktopPath = e.PathSave.Substring(0, e.PathSave.Length - Path.GetFileName(e.PathSave).Length);
+
             _handler._name = name;
-            _handler._settings = _settings[e.SelectedSettings];
             _handler._desktopPath = desktopPath;
+
+            _handler._settings = _settings[e.SelectedSettings];
             _handler._createModel = e.SelectedCreateModel;
             _externalEvent.Raise();
         }
@@ -72,7 +75,6 @@ namespace MainRevitPanel.Commands.Export
             IFCExportConfigurationsMap configurationsMap = new IFCExportConfigurationsMap();
             configurationsMap.AddBuiltInConfigurations();
             configurationsMap.AddSavedConfigurations();
-            //List<string> settings = configurationsMap.Values.Select(x=> x.Name).ToList();
             foreach (IFCExportConfiguration setting in configurationsMap.Values)
             {
                 Dictionary<string, object> dict = new Dictionary<string, object>();

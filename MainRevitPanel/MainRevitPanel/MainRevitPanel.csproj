@@ -120,8 +120,13 @@
     <Compile Include="Services\GraphPathFinder.cs" />
     <Compile Include="UI\EventsArgs\ApplRequestedEventArgs.cs" />
     <Compile Include="UI\EventsArgs\ExportToIFCRequestedEventArgs.cs" />
+    <Compile Include="UI\Models\GipVisionModel.cs" />
+    <Compile Include="UI\ViewModel\AddKeyGipVisionViewModel.cs" />
     <Compile Include="UI\ViewModel\ExportToIFCViewModel.cs" />
     <Compile Include="UI\ViewModel\NumberingPileViewModel.cs" />
+    <Compile Include="UI\Windows\AddKeyGipVision.xaml.cs">
+      <DependentUpon>AddKeyGipVision.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\Windows\ExportToIFCWindow.xaml.cs">
       <DependentUpon>ExportToIFCWindow.xaml</DependentUpon>
     </Compile>
@@ -163,6 +168,10 @@
     <Folder Include="Commands\Utils\" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="UI\Windows\AddKeyGipVision.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\Windows\ClashReportWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

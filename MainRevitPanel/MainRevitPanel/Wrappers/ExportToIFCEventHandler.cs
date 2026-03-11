@@ -3,6 +3,8 @@ using Autodesk.Revit.DB.Events;
 using Autodesk.Revit.UI;
 using BIM.IFC.Export.UI;
 using MainRevitPanel.Services;
+using MainRevitPanel.UI.ViewModel;
+using MainRevitPanel.UI.Windows;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -40,10 +42,25 @@ namespace MainRevitPanel.Wrappers
 
                     if (_createModel)
                     {
-
                         GipVision GIP = new GipVision();
-                        GIP.LoadData(Path.Combine(_desktopPath, _name+".ifc"));
-                        GIP.Main();
+                        GIP.LoadData(Path.Combine(_desktopPath, _name + ".ifc"), "");
+                        if (GIP.apiToken?.Any() ?? false)
+                        {
+                            GIP.Main();
+                        }
+                        else
+                        {
+                            var window = new AddKeyGipVisionWindow();
+                            var viewModel = new AddKeyGipVisionViewModel();
+                            viewModel.LoadData(window, GIP);
+                            window.DataContext = viewModel;
+                            window.ShowDialog();
+                            if (GIP.apiToken?.Any() ?? false)
+                            {
+                                GIP.Main();
+                            }
+
+                        }
                     }
                 }
             }
