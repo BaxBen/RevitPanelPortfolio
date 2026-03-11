@@ -1,5 +1,7 @@
 ﻿using Autodesk.Revit.UI;
 using MainRevitPanel.UI.Models;
+using MainRevitPanel.UI.ViewModel;
+using MainRevitPanel.UI.Windows;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -17,6 +19,7 @@ namespace MainRevitPanel.Services
         public string apiToken { get; set; }
         private string filePath { get; set; }
         private static string url = "https://api-cpsk-superapp.gip.su/";
+        private string Name { get; set; }
         public void Main()
         {
             string url_by_panel = url + "api/gip-vision/v1/session/by_plane/";
@@ -33,14 +36,14 @@ namespace MainRevitPanel.Services
                 var body = response.Content.ReadAsStringAsync().Result;
                 JObject json = JObject.Parse(body);
 
-                var model = new GipVisionModel { pin_code = (string)json["onetime_code"], url = (string)json["deeplink"] };
-                TaskDialog.Show("asdf", $"{(int)response.StatusCode}\n{body}");
+                OpenWindow(json);
             }
         }
-        public void LoadData(string path, string key)
+        public void LoadData(string path, string key, string name)
         {
             filePath = path;
             apiToken = key;
+            Name = name;
         }
 
         public int CheckAPIKey(string key)
@@ -64,5 +67,18 @@ namespace MainRevitPanel.Services
             
         }
 
+        private void OpenWindow(JObject json)
+        {
+            List<GipVisionModel> model = new List<GipVisionModel>
+                {
+                    new GipVisionModel { PIN_CODE = (string)json["onetime_code"], URL = (string)json["deeplink"], Name = Name, Data= (string)json["expires_at"] }
+                };
+
+            var window = new GipVisionWindow();
+            var viewModel = new GipVisionViewModel();
+            viewModel.LoadData(window, model);
+            window.DataContext = viewModel;
+            window.ShowDialog();
+        }
     }
 }

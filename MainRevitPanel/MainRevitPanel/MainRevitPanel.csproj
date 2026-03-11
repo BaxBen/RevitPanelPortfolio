@@ -123,12 +123,16 @@
     <Compile Include="UI\Models\GipVisionModel.cs" />
     <Compile Include="UI\ViewModel\AddKeyGipVisionViewModel.cs" />
     <Compile Include="UI\ViewModel\ExportToIFCViewModel.cs" />
+    <Compile Include="UI\ViewModel\GipVisionViewModel.cs" />
     <Compile Include="UI\ViewModel\NumberingPileViewModel.cs" />
     <Compile Include="UI\Windows\AddKeyGipVision.xaml.cs">
       <DependentUpon>AddKeyGipVision.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Windows\ExportToIFCWindow.xaml.cs">
       <DependentUpon>ExportToIFCWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Windows\GipVisionWindow.xaml.cs">
+      <DependentUpon>GipVisionWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Windows\NumberingPileWindow.xaml.cs">
       <DependentUpon>NumberingPileWindow.xaml</DependentUpon>
@@ -181,6 +185,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\Windows\ExportToIFCWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\Windows\GipVisionWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

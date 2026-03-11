@@ -43,7 +43,7 @@ namespace MainRevitPanel.Wrappers
                     if (_createModel)
                     {
                         GipVision GIP = new GipVision();
-                        GIP.LoadData(Path.Combine(_desktopPath, _name + ".ifc"), "");
+                        GIP.LoadData(Path.Combine(_desktopPath, _name + ".ifc"), string.Empty, doc.Title);
                         if (GIP.apiToken?.Any() ?? false)
                         {
                             GIP.Main();

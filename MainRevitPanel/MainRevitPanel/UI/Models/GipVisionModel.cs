@@ -8,7 +8,9 @@ namespace MainRevitPanel.UI.Models
 {
     public class GipVisionModel
     {
-        public string url {  get; set; }
-        public string pin_code { get; set; }
+        public string Name { get; set; }
+        public string URL {  get; set; }
+        public string PIN_CODE { get; set; }
+        public string Data { get; set; }
     }
 }
