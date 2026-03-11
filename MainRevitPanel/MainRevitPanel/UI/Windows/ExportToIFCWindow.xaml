@@ -67,7 +67,7 @@
             Text="&lt;Параметры в сеансе&gt;"
             Margin="0,0,0,10"/>
 
-        <TextBlock Grid.Row="3" Text="Создать модель GIP VISON" Margin="0,15,0,5"/>
+        <TextBlock Grid.Row="3" Text="Создать модель GIP VISION" Margin="0,15,0,5"/>
         <ComboBox 
             Grid.Row="4"
             ItemsSource="{Binding CreateModel}"

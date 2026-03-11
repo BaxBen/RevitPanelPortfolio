@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MainRevitPanel.Commands.GIP_VISON
+namespace MainRevitPanel.Commands.GIP_VISION
 {
     public class GipVision
     {
