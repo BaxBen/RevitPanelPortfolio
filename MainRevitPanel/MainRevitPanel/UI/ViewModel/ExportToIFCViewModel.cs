@@ -27,7 +27,7 @@ namespace MainRevitPanel.UI.ViewModel
         public string SelectedSettings { get; set; }
         public Window _window { get; set; }
         public Dictionary<string, bool> CreateModel { get; set; }
-        public bool? SelectedCreateModel { get; set; }
+        public bool SelectedCreateModel { get; set; }
         public string Name { get; set; }
         public event EventHandler<ExportToIFCRequestedEventArgs> ExportToIFCRequested;
 
@@ -52,11 +52,12 @@ namespace MainRevitPanel.UI.ViewModel
         }
         private bool CanExecuteApply(object parameter)
         {
-            return (SelectedSettings != null && SelectedCreateModel != null && PathSave!=null);
+            return (SelectedSettings != null && PathSave!=null);
         }
         private void ExecuteApply(object parameter)
         {
             OnExportToIFCRequested(new ExportToIFCRequestedEventArgs(SelectedSettings, SelectedCreateModel, PathSave));
+            _window?.Close();
         }
         private bool CanExecutePath(object parameter)
         {
@@ -64,12 +65,16 @@ namespace MainRevitPanel.UI.ViewModel
         }
         private void ExecutePath(object parameter)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Title = "Выберите файл";
-            openFileDialog.Filter = "Файлы IFC (*.ifc)|*.ifc";
-            if(openFileDialog.ShowDialog() == DialogResult.OK)
+            var dialog = new System.Windows.Forms.SaveFileDialog
             {
-                PathSave = openFileDialog.FileName;
+                Title = "Выберите файл",
+                Filter = "Файлы IFC (*.ifc)|*.ifc",
+                FileName = Name
+            };
+
+            if(dialog.ShowDialog() == DialogResult.OK)
+            {
+                PathSave = dialog.FileName;
             }
         }
 

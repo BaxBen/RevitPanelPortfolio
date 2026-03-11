@@ -109,6 +109,7 @@
     <Compile Include="Commands\Export\ExportSchedulesToExcelCommand.cs" />
     <Compile Include="Commands\Export\ExportToDWGCommand.cs" />
     <Compile Include="Commands\Export\ExportToIFCCommand.cs" />
+    <Compile Include="Commands\GIP VISON\GipVision.cs" />
     <Compile Include="Commands\KR\NumberingPileCommand.cs" />
     <Compile Include="Commands\VK\ClashDetectionTool.cs" />
     <Compile Include="Commands\VK\NearFarCraneCommand.cs" />

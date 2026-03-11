@@ -6,6 +6,8 @@ using MainRevitPanel.Base;
 using MainRevitPanel.UI.EventsArgs;
 using MainRevitPanel.UI.ViewModel;
 using MainRevitPanel.UI.Windows;
+using MainRevitPanel.Wrapper;
+using MainRevitPanel.Wrappers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,16 +22,14 @@ namespace MainRevitPanel.Commands.Export
     public class ExportToIFCCommand : CommandBase
     {
         public Dictionary<string, IFCExportConfiguration> _settings {  get; set; }
+        private ExternalEvent _externalEvent;
+        private ExportToIFCEventHandler _handler;
         private Document _doc;
 
         public override Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             Document doc = GetDocument(commandData);
             _doc = doc;
-            using (Transaction ts =new Transaction(doc, "Export to IFC"))
-            {
-
-            }
             try
             {
                 string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
@@ -38,6 +38,8 @@ namespace MainRevitPanel.Commands.Export
                 // Простой диалог для подтверждения
                 ExportToIFCWindow window = new ExportToIFCWindow();
                 ExportToIFCViewModel viewModel = new ExportToIFCViewModel();
+                _handler = new ExportToIFCEventHandler();
+                _externalEvent = ExternalEvent.Create(_handler);
                 viewModel.LoadData(window, IFCConfiguration().Keys.OrderBy(x=>x).ToList(), ifcPath, doc.Title);
                 viewModel.ExportToIFCRequested += OnExportToIFCRequested;
                 window.DataContext = viewModel; 
@@ -54,20 +56,14 @@ namespace MainRevitPanel.Commands.Export
 
         private void OnExportToIFCRequested(object sender, ExportToIFCRequestedEventArgs e)
         {
-            // Настраиваем опции экспорта
-            IFCExportOptions exportOptions = new IFCExportOptions();
-
             // Базовые настройки
-            exportOptions.FileVersion = _settings[e.SelectedSettings].IFCVersion;
-            exportOptions.ExportBaseQuantities = _settings[e.SelectedSettings].ExportBaseQuantities;
-            exportOptions.WallAndColumnSplitting = _settings[e.SelectedSettings].SplitWallsAndColumns;
-
             string name = Path.GetFileNameWithoutExtension(e.PathSave);
             string desktopPath = e.PathSave.Substring(0, e.PathSave.Length - Path.GetFileName(e.PathSave).Length);
-
-            _doc.Export(desktopPath, name, exportOptions);
-            TaskDialog.Show("Успешно",
-                $"Модель экспортирована в IFC:\n{e.PathSave}");
+            _handler._name = name;
+            _handler._settings = _settings[e.SelectedSettings];
+            _handler._desktopPath = desktopPath;
+            _handler._createModel = e.SelectedCreateModel;
+            _externalEvent.Raise();
         }
 
         public Dictionary<string, IFCExportConfiguration> IFCConfiguration()

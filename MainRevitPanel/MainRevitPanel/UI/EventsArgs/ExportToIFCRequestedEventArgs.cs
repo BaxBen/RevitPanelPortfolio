@@ -9,9 +9,9 @@ namespace MainRevitPanel.UI.EventsArgs
     public class ExportToIFCRequestedEventArgs:EventArgs
     {
         public string SelectedSettings { get; }
-        public bool? SelectedCreateModel { get; }
+        public bool SelectedCreateModel { get; }
         public string PathSave { get; }
-        public ExportToIFCRequestedEventArgs(string selectedSettings, bool? selectedCreateModel, string pathSave) 
+        public ExportToIFCRequestedEventArgs(string selectedSettings, bool selectedCreateModel, string pathSave) 
         {
             SelectedSettings = selectedSettings;
             SelectedCreateModel = selectedCreateModel;

@@ -96,7 +96,7 @@ namespace MainRevitPanel
             PushButton button1 = CreateButton(
                 panel,
                 "Экспорт листов в DWG",
-                "Экспорт листов в DWG",
+                "DWG",
                 typeof(ExportToDWGCommand),
                 "Пользователь выбирает листы для экспорта"
                 );
@@ -104,7 +104,7 @@ namespace MainRevitPanel
             PushButton button2 = CreateButton(
                 panel,
                 "Экспорт спецификаций в Excel",
-                "Экспорт спецификаций в Excel",
+                "Excel",
                 typeof(ExportSchedulesToExcelCommand),
                 "Пользователь выбирает спецификаций для экспорта"
                 );
@@ -112,7 +112,7 @@ namespace MainRevitPanel
             PushButton button3 = CreateButton(
                 panel,
                 "Экспорт модели в IFC",
-                "Экспорт модели в IFC",
+                "IFC",
                 typeof(ExportToIFCCommand),
                 "Пользователь выбирает параметры настроек"
                 );
